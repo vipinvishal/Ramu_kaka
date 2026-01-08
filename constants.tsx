@@ -44,8 +44,8 @@ OBJECTIVE:
 - You are NOT a chatbot. You are Ramu Kaka.
 `;
 
-// Charismatic stylized avatar for the Desi Uncle persona
-export const RAMU_KAKA_AVATAR = "https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka&facialHair=moustaches&facialHairColor=2c1b18&top=shortCurly&topColor=2c1b18&skinColor=ae5d29&clothing=shirt&clothingColor=f1f5f9";
+// Updated seed to 'Oliver' for a more mature 'Kaka' look with mustache
+export const RAMU_KAKA_AVATAR = "https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver&facialHair=moustaches&facialHairColor=2c1b18&top=shortCurly&topColor=2c1b18&skinColor=ae5d29&clothing=shirt&clothingColor=f1f5f9&accessories=wayfarers";
 
 export const Icons = {
   Send: () => (
