@@ -1,22 +1,14 @@
 
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from "../constants";
-
-const getAIClient = () => {
-  if (!process.env.API_KEY) {
-    throw new Error("API Key not found. Please ensure it is set in the environment.");
-  }
-  return new GoogleGenAI({ apiKey: process.env.API_KEY });
-};
 
 export const generateRamuKakaResponse = async (
   prompt: string,
   history: { role: 'user' | 'model'; parts: { text: string }[] }[]
 ): Promise<string> => {
   try {
-    const ai = getAIClient();
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
     
-    // We use gemini-3-flash-preview for fast, witty responses
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: [
@@ -25,9 +17,7 @@ export const generateRamuKakaResponse = async (
       ],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.9, // Higher temperature for more creativity and humor
-        topP: 0.95,
-        topK: 40,
+        temperature: 0.9,
       },
     });
 
