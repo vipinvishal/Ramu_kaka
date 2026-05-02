@@ -1,5 +1,5 @@
 
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 import { SYSTEM_INSTRUCTION } from "../constants";
 
 export const generateRamuKakaResponse = async (
@@ -7,42 +7,34 @@ export const generateRamuKakaResponse = async (
   history: { role: 'user' | 'model'; parts: { text: string }[] }[]
 ): Promise<string> => {
   try {
-    const apiKey = process.env.API_KEY;
-    
-    if (!apiKey || apiKey === "undefined") {
-      console.error("Kaka Error: API_KEY is missing! Check your Vercel Environment Variables.");
+    const apiKey = import.meta.env.GROQ_API_KEY;
+
+    if (!apiKey) {
+      console.error("Kaka Error: GROQ_API_KEY is missing!");
       return "Arre oye! Bina chabi (API Key) ke tala kaise khulega? Vercel settings mein jaake key daal pehle.";
     }
 
-    const ai = new GoogleGenAI({ apiKey });
-    
-    // Using gemini-3-flash-preview as per the strict quality guidelines for basic text tasks
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: [
-        ...history,
-        { role: 'user', parts: [{ text: prompt }] }
-      ],
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.9,
-      },
+    const client = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+
+    const messages = [
+      { role: 'system' as const, content: SYSTEM_INSTRUCTION },
+      ...history.map(msg => ({
+        role: (msg.role === 'model' ? 'assistant' : 'user') as 'assistant' | 'user',
+        content: msg.parts[0].text,
+      })),
+      { role: 'user' as const, content: prompt },
+    ];
+
+    const completion = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      temperature: 0.9,
+      max_tokens: 200,
     });
 
-    if (!response.text) {
-      console.warn("Kaka Warning: Empty response from Gemini.");
-      return "Beta, dimaag khali hai mera abhi. Thodi der baad puch.";
-    }
-
-    return response.text;
+    return completion.choices[0]?.message?.content || "Beta, dimaag khali hai mera abhi. Thodi der baad puch.";
   } catch (error: any) {
-    console.error("Gemini API Call Failed:", error);
-    
-    // If it's a 404, the model name might not be accessible yet for this key
-    if (error?.message?.includes('404') || error?.message?.includes('not found')) {
-      return "Arre bhai, ye naya model (Gemini 3) tere ilake mein nahi aaya lagta hai. Apni kismat check kar.";
-    }
-
-    return "Arre bhai, network slow hai ya tera dimaag? Google se connectivity tut gayi! (Console dekh, error wahan hai)";
+    console.error("Groq API Call Failed:", error);
+    return "Arre bhai, network slow hai ya tera dimaag? Groq se connectivity tut gayi! (Console dekh, error wahan hai)";
   }
 };
