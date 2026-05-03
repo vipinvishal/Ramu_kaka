@@ -28,8 +28,8 @@ export const generateRamuKakaResponse = async (
     const completion = await client.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages,
-      temperature: 0.9,
-      max_tokens: 200,
+      temperature: 1.0,
+      max_tokens: 300,
     });
 
     return completion.choices[0]?.message?.content || "Beta, dimaag khali hai mera abhi. Thodi der baad puch.";
